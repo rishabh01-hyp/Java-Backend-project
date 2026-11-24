@@ -4,6 +4,13 @@ import java.sql.DriverManager;
 import java.util.Map;
 
 public record DatabaseConfig(String url, String user, String password) {
+    /** Project-local demo database; no server or environment credentials required. */
+    public static DatabaseConfig localDemo() {
+        return new DatabaseConfig(
+                "jdbc:h2:file:./data/repair-shop-local;MODE=MySQL;DB_CLOSE_DELAY=-1;LOCK_TIMEOUT=5000",
+                "sa", "");
+    }
+
     public static DatabaseConfig fromEnvironment() {
         Map<String, String> env = System.getenv();
         String password = env.get("REPAIR_DB_PASSWORD");

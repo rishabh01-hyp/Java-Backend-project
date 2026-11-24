@@ -34,7 +34,7 @@ public final class ConsoleMenu {
     }
 
     public void run() {
-        output.println("Repair Shop Job Card and Spare Parts Manager - JDBC/MySQL");
+        output.println("Repair Shop Job Card and Spare Parts Manager - JDBC");
         while (true) {
             output.println("\n1. Add spare part\n2. List stock\n3. Create repair job\n4. View job"
                     + "\n5. Queue part usage\n6. Low-stock report\n7. Part usage by job"

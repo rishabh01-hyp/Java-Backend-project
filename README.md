@@ -34,6 +34,31 @@ StringBuilder usage are not demonstrated by this project.
 
 ## Connect to MySQL on Windows
 
+### Local sample database (no MySQL required)
+
+From the project folder, run ` .\run-local.cmd ` in PowerShell. This starts the
+application with an embedded H2 database stored at `data/repair-shop-local.mv.db`.
+The launcher switches to the project directory so the database stays here even
+when the launcher is called from elsewhere. No server or credentials are needed.
+Use one running application at a time for this local database.
+
+The equivalent command, from the project directory, is:
+
+```powershell
+java -jar target/repair-shop-2.0.0.jar --local
+```
+
+Run `mvn package` after Java source changes to rebuild the JAR. The launcher builds
+automatically only when the JAR is missing. The sample database persists between
+runs and is ignored by Git. It is an actual H2 database for practice, not a MySQL
+server. The existing `data/repair-shop.dat` legacy file is unrelated.
+
+The initial sample contains three parts (P101-P103), two jobs (J101-J102), and
+one recorded use of P101 by J101. Its starting stock after that use is 9, 5, and 3.
+Further actions in the menu change these values normally; launches do not reset them.
+
+### MySQL server mode
+
 The JDBC driver is included by Maven. MySQL Server runs separately. The application
 creates its three tables, but the database and account must already exist.
 It reads process environment variables, not .env files.

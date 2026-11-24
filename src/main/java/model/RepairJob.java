@@ -2,7 +2,6 @@ package model;
 
 import java.util.List;
 
-/** Records supply private final fields and read-only accessors. */
 public record RepairJob(String id, String device, String issue, List<PartUsage> usages) {
     public RepairJob {
         id = Validation.id(id, "Job ID");

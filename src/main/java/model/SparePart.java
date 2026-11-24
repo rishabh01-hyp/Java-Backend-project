@@ -1,6 +1,5 @@
 package model;
 
-/** Immutable stock record; only the service publishes stock changes. */
 public record SparePart(String id, String name, int quantity) {
     public SparePart {
         id = Validation.id(id, "Part ID");
