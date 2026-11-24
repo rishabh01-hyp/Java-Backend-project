@@ -1,5 +1,6 @@
 package csv;
 
+import fileio.AtomicFileWriter;
 import model.SparePart;
 import model.UsageReportRow;
 import org.apache.commons.csv.CSVFormat;
@@ -62,17 +63,10 @@ public final class CsvFiles {
     private interface Output { void print(CSVPrinter printer) throws IOException; }
 
     private static void write(Path destination, String[] header, Output output) throws IOException {
-        Path path = destination.toAbsolutePath().normalize();
-        Files.createDirectories(path.getParent());
-        Path temporary = Files.createTempFile(path.getParent(), "repair-report-", ".tmp");
-        try {
-            try (var writer = Files.newBufferedWriter(temporary, StandardCharsets.UTF_8);
-                 var printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder().setHeader(header).build())) {
+        AtomicFileWriter.write(destination, writer -> {
+            try (var printer = new CSVPrinter(writer, CSVFormat.RFC4180.builder().setHeader(header).build())) {
                 output.print(printer);
             }
-            Files.move(temporary, path, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-        } finally {
-            Files.deleteIfExists(temporary);
-        }
+        });
     }
 }

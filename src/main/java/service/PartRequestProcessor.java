@@ -9,20 +9,15 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /** Producers submit to a bounded queue; ExecutorService workers consume it. */
 public final class PartRequestProcessor implements AutoCloseable {
-    @FunctionalInterface
-    public interface Handler {
-        int recordUsage(String jobId, String partId, int quantity) throws SQLException;
-    }
-
     public record Submission(long id, CompletionStage<Integer> result) { }
     private record Request(String jobId, PartUsage usage, CompletableFuture<Integer> result) { }
     private final BlockingQueue<Request> queue;
     private final ExecutorService workers;
-    private final Handler handler;
+    private final PartUsageHandler handler;
     private final AtomicLong ids = new AtomicLong();
     private volatile boolean accepting = true;
 
-    public PartRequestProcessor(Handler handler, int workerCount, int queueCapacity) {
+    public PartRequestProcessor(PartUsageHandler handler, int workerCount, int queueCapacity) {
         if (workerCount < 1 || queueCapacity < 1) { throw new IllegalArgumentException("Workers and capacity must be positive."); }
         this.handler = java.util.Objects.requireNonNull(handler);
         queue = new ArrayBlockingQueue<>(queueCapacity);

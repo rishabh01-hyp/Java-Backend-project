@@ -4,7 +4,6 @@ import model.SparePart;
 import model.UsageReportRow;
 
 import java.sql.SQLException;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +16,7 @@ public final class ReportService {
     public List<SparePart> lowStock(int threshold) throws SQLException {
         if (threshold < 0) { throw new IllegalArgumentException("Threshold must be zero or greater."); }
         return shop.listParts().stream().filter(part -> part.quantity() <= threshold)
-                .sorted(Comparator.comparingInt(SparePart::quantity).thenComparing(SparePart::id)).toList();
+                .sorted(ReportComparators.LOW_STOCK).toList();
     }
 
     /** Aggregate repeated usage actions per (job, part); long totals avoid integer overflow. */
@@ -29,6 +28,6 @@ public final class ReportService {
                         Collectors.summingLong(UsageReportRow::quantityUsed)))
                 .entrySet().stream()
                 .map(entry -> new UsageReportRow(entry.getKey().jobId(), entry.getKey().partId(), entry.getValue()))
-                .sorted(Comparator.comparing(UsageReportRow::jobId).thenComparing(UsageReportRow::partId)).toList();
+                .sorted(ReportComparators.USAGE_BY_JOB).toList();
     }
 }

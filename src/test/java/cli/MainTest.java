@@ -21,7 +21,7 @@ class MainTest {
     private String run(RepairShopService shop, String input) {
         var bytes = new ByteArrayOutputStream();
         try (var requests = new PartRequestProcessor(shop::recordUsage, 2, 100)) {
-            new Main(shop, requests, new Scanner(input), new PrintStream(bytes, true, StandardCharsets.UTF_8)).run();
+            new ConsoleMenu(shop, requests, new Scanner(input), new PrintStream(bytes, true, StandardCharsets.UTF_8)).run();
         }
         return bytes.toString(StandardCharsets.UTF_8);
     }
