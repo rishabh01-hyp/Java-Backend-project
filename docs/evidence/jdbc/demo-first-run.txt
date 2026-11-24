@@ -1,0 +1,279 @@
+Repair Shop Job Card and Spare Parts Manager - JDBC/MySQL
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Part ID: Part name: Starting quantity: Part saved: P101 | USB-C Port | Stock: 2
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Job ID: Device name: Issue description: Job saved: J101
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Job ID: Device name: Issue description: Job saved: J102
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: P101 | USB-C Port | Stock: 2
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Job ID: Part ID: Quantity used: Queued request #1. Use option 11 for its committed result.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Request #1 saved. Remaining stock: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Job ID: Part ID: Quantity used: Queued request #2. Use option 11 for its committed result.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Request #2 rejected: Insufficient stock for P101: requested 2, available 1.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Job ID: Job: J101
+Device: Phone
+Issue: Not charging
+P101 | USB-C Port | Used: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Job ID: Job: J102
+Device: Tablet
+Issue: Loose port
+No parts used.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: P101 | USB-C Port | Stock: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Inventory CSV path: Imported 3 part(s).
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Low-stock threshold (inclusive): P203 | Battery | Stock: 0
+P101 | USB-C Port | Stock: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: J101 | P101 | Total used: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Export path (existing file replaced): Inventory CSV exported.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Export path (existing file replaced): Usage CSV exported.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: Low-stock threshold (inclusive): Export path (existing file replaced): Low-stock CSV exported.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Queue part usage
+6. Low-stock report
+7. Part usage by job
+8. Import inventory CSV
+9. Export inventory CSV
+10. Export usage CSV
+11. Wait for queued request results
+12. Export low-stock CSV
+0. Exit
+Choice: No pending request results.
+Goodbye. Accepted requests have finished.

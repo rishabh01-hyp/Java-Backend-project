@@ -1,0 +1,40 @@
+Data file: C:\Users\Rishabh\Documents\Nuclear_Launch_Codes\SEM3\Java_backend\target\demo\repair-shop.dat
+Repair Shop Job Card and Spare Parts Manager
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Record part usage
+0. Exit
+Choice: Job ID: Job: J101
+Device: Phone
+Issue: Not charging
+P101 | USB-C Port | Used: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Record part usage
+0. Exit
+Choice: Job ID: Job: J102
+Device: Tablet
+Issue: Loose port
+No parts used.
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Record part usage
+0. Exit
+Choice: P101 | USB-C Port | Stock: 1
+
+1. Add spare part
+2. List stock
+3. Create repair job
+4. View job
+5. Record part usage
+0. Exit
+Choice: Goodbye. All successful changes are saved.

@@ -1,0 +1,10 @@
+/target/
+/out/
+/data/
+/reports/
+.env
+.env.*
+*.tmp
+.idea/
+*.iml
+.vscode/
