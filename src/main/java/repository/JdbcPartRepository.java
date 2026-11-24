@@ -47,4 +47,13 @@ public final class JdbcPartRepository implements Repository<SparePart, String> {
     static SparePart read(ResultSet rows) throws SQLException {
         return new SparePart(rows.getString("id"), rows.getString("name"), rows.getInt("quantity"));
     }
+    public boolean deleteById(String id) throws SQLException {
+    try (var connection = connections.open();
+         var query = connection.prepareStatement(
+             "DELETE FROM spare_parts WHERE id = ?")) {
+
+        query.setString(1, id);
+        return query.executeUpdate() == 1;
+        }
+    }
 }
