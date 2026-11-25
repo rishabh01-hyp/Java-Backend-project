@@ -1,140 +1,118 @@
-# Repair Shop Job Card and Spare Parts Manager
+﻿# Repair Shop — compact syllabus version
 
-Java 17 command-line application with JDBC/MySQL persistence, queued part usage,
-and CSV import/export. Build with Maven and JDK 17 or newer.
+545 Java lines across four files, including comments and blank lines.
+Uses Java 17 and MySQL through JDBC. The only external library is the MySQL
+JDBC driver in lib/. No Maven, H2, CSV library or testing framework is required.
 
-## Topic and class guide
+## Files to explain
 
-All paths below are relative to src/main/java.
-
-| Topic / responsibility | Files |
+| File | Responsibility |
 | --- | --- |
-| Startup and resource lifecycle | cli/Main.java |
-| Menu, input and exception handling | cli/ConsoleMenu.java |
-| OOP and immutable records | model/SparePart.java, model/RepairJob.java, model/PartUsage.java |
-| Input validation | model/Validation.java |
-| Business operations | service/RepairShopService.java |
-| Threads, queue, futures and synchronization | service/PartRequestProcessor.java |
-| Functional interface for worker callbacks | service/PartUsageHandler.java |
-| Streams, lambdas and aggregation | service/ReportService.java |
-| Comparator composition and sorting | service/ReportComparators.java |
-| Generics and interfaces | repository/Repository.java |
-| Connection abstraction and configuration | repository/ConnectionFactory.java, repository/DatabaseConfig.java |
-| JDBC queries and collections | repository/JdbcPartRepository.java, repository/JdbcJobRepository.java |
-| Stock row locking and transactional imports | repository/JdbcShopStore.java |
-| Generic transactions, commit and rollback | repository/Transactions.java |
-| Table initialization | repository/JdbcSchema.java |
-| CSV parsing and formatting | csv/CsvFiles.java |
-| File I/O and atomic replacement | fileio/AtomicFileWriter.java |
+| Main.java | Menu, input validation, reports, import/export |
+| Shop.java | Models, inheritance, custom exception and thread/queue |
+| Database.java | JDBC connection, schema and database operations |
+| Csv.java | CSV reading/writing with Java character streams |
 
-Each class owns a responsibility. Language concepts naturally work together:
-streams use comparators, JDBC uses exceptions, and workers use interfaces.
-Custom exceptions, TreeMap, PriorityQueue, custom Comparable and explicit
-StringBuilder usage are not demonstrated by this project.
+## First-time database setup
 
-## Connect to MySQL on Windows
+Install JDK 17+ and MySQL Server 8+. Start MySQL, then run this SQL as a database
+administrator (replace the example password):
 
-### Local sample database (no MySQL required)
-
-From the project folder, run ` .\run-local.cmd ` in PowerShell. This starts the
-application with an embedded H2 database stored at `data/repair-shop-local.mv.db`.
-The launcher switches to the project directory so the database stays here even
-when the launcher is called from elsewhere. No server or credentials are needed.
-Use one running application at a time for this local database.
-
-The equivalent command, from the project directory, is:
-
-```powershell
-java -jar target/repair-shop-2.0.0.jar --local
+```sql
+CREATE DATABASE IF NOT EXISTS repair_shop CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+CREATE USER IF NOT EXISTS 'repair_app'@'localhost' IDENTIFIED BY 'YOUR_PASSWORD';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, REFERENCES ON repair_shop.* TO 'repair_app'@'localhost';
 ```
 
-Run `mvn package` after Java source changes to rebuild the JAR. The launcher builds
-automatically only when the JAR is missing. The sample database persists between
-runs and is ignored by Git. It is an actual H2 database for practice, not a MySQL
-server. The existing `data/repair-shop.dat` legacy file is unrelated.
+An existing account keeps its existing password. Existing repair_shop tables
+and data from the previous version remain usable; the application does not
+reset them. Tables must use InnoDB. The application creates missing tables.
 
-The initial sample contains three parts (P101-P103), two jobs (J101-J102), and
-one recorded use of P101 by J101. Its starting stock after that use is 9, 5, and 3.
-Further actions in the menu change these values normally; launches do not reset them.
-
-### MySQL server mode
-
-The JDBC driver is included by Maven. MySQL Server runs separately. The application
-creates its three tables, but the database and account must already exist.
-It reads process environment variables, not .env files.
-
-1. Check `Get-Service MySQL80` in PowerShell. If stopped, start it from Windows
-   Services or use `Start-Service MySQL80` in an administrator terminal.
-   The service name can differ on other installations.
-2. Open your administrator connection in MySQL Workbench, or run:
-
-   ```powershell
-   & 'C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe' -u root -p
-   ```
-
-3. For a new local setup, execute this SQL, replacing the example password first:
-
-   ```sql
-   CREATE DATABASE IF NOT EXISTS repair_shop
-     CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
-   CREATE USER IF NOT EXISTS 'repair_app'@'localhost'
-     IDENTIFIED BY 'REPLACE_WITH_YOUR_OWN_PASSWORD';
-   GRANT SELECT, INSERT, UPDATE, CREATE, REFERENCES
-     ON repair_shop.* TO 'repair_app'@'localhost';
-   ```
-
-   If the account exists, CREATE USER IF NOT EXISTS does not change its password.
-   Use its existing password or deliberately change it as administrator.
-
-4. In the project folder, configure and run from the same PowerShell terminal:
-
-   ```powershell
-   $env:REPAIR_DB_URL = 'jdbc:mysql://localhost:3306/repair_shop?connectTimeout=5000&socketTimeout=15000'
-   $env:REPAIR_DB_USER = 'repair_app'
-   $credential = Get-Credential -UserName repair_app -Message 'Enter the MySQL application password'
-   $env:REPAIR_DB_PASSWORD = $credential.GetNetworkCredential().Password
-   mvn package
-   java -jar target/repair-shop-2.0.0.jar
-   ```
-
-   Settings apply to this terminal and its child processes. For IDE launches,
-   set these variables in the run configuration. Adjust the port if needed.
-   Do not commit passwords.
-
-DatabaseConfig opens JDBC connections. JdbcSchema initializes spare_parts,
-repair_jobs and part_usage using src/main/resources/db/schema.sql. Recording
-usage locks the part row, deducts stock and inserts usage in one transaction.
-A failure rolls back both changes. Option 11 waits for queued usage to finish
-before you inspect reports.
-
-Troubleshooting:
-
-- Missing REPAIR_DB_PASSWORD: configure it in the process launching Java.
-- Connection refused / SQL state starting with 08: check server, host and port.
-- Access denied / SQL state 28000: check account, password and permitted host.
-- Unknown database: create the database named in the URL.
-- CREATE denied: the application needs table-creation privileges at startup.
-
-## Tests
-
-`mvn test` runs the main suite on isolated H2 in-memory databases in MySQL
-compatibility mode. This does not verify the running MySQL server.
-
-MySqlIntegrationTest is skipped unless REPAIR_TEST_MYSQL_URL is configured.
-A skipped test means no connection was attempted, not that JDBC failed.
-
-To enable it, create a separate repair_shop_test database and repair_test account
-using the setup SQL above with those names. Grant the test account SELECT,
-INSERT, UPDATE, DELETE, CREATE and REFERENCES on repair_shop_test.*. DELETE is
-needed to clean up test rows. Never point this test at production.
+In PowerShell, from this project directory:
 
 ```powershell
-$env:REPAIR_TEST_MYSQL_URL = 'jdbc:mysql://localhost:3306/repair_shop_test?connectTimeout=5000&socketTimeout=15000'
-$env:REPAIR_TEST_MYSQL_USER = 'repair_test'
-$testCredential = Get-Credential -UserName repair_test -Message 'Enter the MySQL test account password'
-$env:REPAIR_TEST_MYSQL_PASSWORD = $testCredential.GetNetworkCredential().Password
-mvn test
+$env:REPAIR_DB_USER = 'repair_app'
+$credential = Get-Credential -UserName repair_app -Message 'MySQL password'
+$env:REPAIR_DB_PASSWORD = $credential.GetNetworkCredential().Password
+.\run-local.cmd
 ```
 
-Historical MySQL demo logs live in docs/evidence/jdbc. They describe an earlier
-run, not the current server or credentials.
+The launcher compiles every time and starts the MySQL version. Its name is kept
+for convenience; the former H2/--local mode has been removed. MySQL must run.
+For a different server/database, set REPAIR_DB_URL to its JDBC URL, for example
+jdbc:mysql://localhost:3306/repair_shop?connectTimeout=5000&socketTimeout=15000.
+
+Equivalent manual commands:
+
+```powershell
+javac --release 17 -d out Main.java Shop.java Database.java Csv.java
+java -cp "out;lib/*" Main
+```
+
+- javac compiles the four source files; --release 17 targets Java 17.
+- -d out puts generated class files in out/.
+- java runs the compiled Main class.
+- -cp tells Java where classes and the MySQL driver are located.
+- Windows separates classpath entries with a semicolon; Linux/macOS use a colon.
+
+When sharing this project, include lib/mysql-connector-j-9.2.0.jar. The driver
+is needed at runtime; compilation only needs the standard JDK JDBC interfaces.
+
+## Features and behaviour
+
+Add/list parts, create/view jobs, queue part usage, report low stock and usage,
+import/export CSV, restock parts and delete unused parts. Used parts cannot be
+deleted because their usage history references them through foreign keys.
+
+Option 5 queues a request; option 11 shows success or failure. Other operations
+wait for earlier requests, so reports include completed stock changes. Exit
+also drains accepted requests. Stock deduction and usage recording share a
+transaction; imports also roll back the whole batch on an error.
+
+Exports replace the selected file. Enter a path whose parent folder exists.
+CSV supports quoted commas, escaped double quotes and multiline text. Import
+adds new part IDs only; duplicate IDs reject the entire import.
+
+## Syllabus concepts actually demonstrated
+
+- Classes, constructors, this/static, encapsulation and inheritance (Entity).
+- Abstraction, interfaces and polymorphism (Entity, Comparable, Runnable, UsageTask).
+- Strings, comparison, formatting, StringBuilder and Integer parsing.
+- Checked/unchecked exceptions, try/catch/finally, multi-catch, throw/throws
+  and a custom ShopException.
+- ArrayList, LinkedList, HashSet, Map configuration and Queue traversal/use.
+- Comparable, Comparator and Collections.sort.
+- Thread/Runnable, start, join, interruption, synchronized, wait/notifyAll,
+  a guarded producer-consumer queue and visibility through intrinsic locks.
+- JDBC DriverManager/Connection, Statement/PreparedStatement, secure parameters,
+  ResultSet iteration, object mapping, CRUD, transactions and resource cleanup.
+- Lambdas, method references, streams, filter/sorted/skip and forEach.
+- Generic collections and a bounded generic method (showParts).
+- FileReader/FileWriter, character streams, CSV and collection import/export.
+
+This uses a subset of the syllabus, not a forced demonstration of every listed
+collection, stream operation or thread state. The line count is not achieved
+by putting the whole program on a few dense lines.
+
+## Manual checks for your demonstration
+
+1. Add P1/Battery/5 and job J1/Phone/No power.
+2. Queue two P1 for J1; wait (11). Remaining stock should be 3.
+3. Request four more: failure, with stock still 3.
+4. Request one for a missing job: failure; stock stays 3 (rollback).
+5. Restock P1 by 2: stock becomes 5. A negative quantity is rejected.
+6. Export inventory; check the CSV header and values. Import inventory.csv.
+7. Import inventory.csv again: duplicate error; no partial additions.
+8. Export usage: J1/P1 totals 2. Restart: records should still be present.
+9. Delete unused P201: succeeds. Delete used P1: foreign-key rejection.
+10. Type letters at a numeric prompt: error, then the menu continues.
+
+The pre-simplification source, tests and documentation are preserved in
+original-project-backup.zip. Old target/ and data/ files, if present locally,
+are legacy build/demo artifacts and are not used by this version.
+
+Validation: compiled for Java 17 and passed 27 checks, including CSV round trips,
+input validation, queued requests, transactional rollback, concurrent stock
+claims, persistence and CLI behaviour against an isolated MySQL 8 instance.
+The temporary test server was shut down and its database removed.
+
