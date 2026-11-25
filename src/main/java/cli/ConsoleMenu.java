@@ -39,7 +39,8 @@ public final class ConsoleMenu {
             output.println("\n1. Add spare part\n2. List stock\n3. Create repair job\n4. View job"
                     + "\n5. Queue part usage\n6. Low-stock report\n7. Part usage by job"
                     + "\n8. Import inventory CSV\n9. Export inventory CSV\n10. Export usage CSV"
-                    + "\n11. Wait for queued request results\n12. Export low-stock CSV\n0. Exit");
+                    + "\n11. Wait for queued request results\n12. Export low-stock CSV"
+                    + "\n13. Delete spare part\n0. Exit");
             try {
                 switch (readInt("Choice: ")) {
                     case 1 -> addPart();
@@ -67,12 +68,16 @@ public final class ConsoleMenu {
                         CsvFiles.writeInventory(path, reports.lowStock(threshold));
                         output.println("Low-stock CSV exported.");
                     }
+                    case 13 -> {
+                             service.deletePart(readLine("Part ID: "));
+                             output.println("Part deleted.");
+                    }
                     case 0 -> {
                         awaitResults();
                         output.println("Goodbye. Accepted requests have finished.");
                         return;
                     }
-                    default -> output.println("Unknown menu option. Choose 0 to 12.");
+                    default -> output.println("Unknown menu option. Choose 0 to 13.");
                 }
             } catch (NumberFormatException e) {
                 output.println("Invalid number. Enter a whole number within the integer range. Operation cancelled.");

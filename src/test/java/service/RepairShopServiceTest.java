@@ -104,4 +104,26 @@ class RepairShopServiceTest {
         assertThrows(SQLException.class, () -> unavailable.addPart("P1", "Port", 1));
         assertThrows(SQLException.class, () -> unavailable.recordUsage("J1", "P1", 1));
     }
+    @Test void deleteUnusedPart() throws Exception {
+    shop.addPart("P200", "Battery", 5);
+
+    shop.deletePart("P200");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> shop.findPart("P200")
+        );
+    }
+    @Test void cannotDeletePartUsedInJob() throws Exception {
+    db.seed();
+
+    shop.recordUsage("J101", "P101", 1);
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> shop.deletePart("P101")
+    );
+
+    assertEquals(1, shop.findPart("P101").quantity());
+    }
 }

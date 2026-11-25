@@ -10,8 +10,10 @@ public final class RepairShopService {
     private final Repository<SparePart, String> parts;
     private final Repository<RepairJob, String> jobs;
     private final JdbcShopStore store;
+    private final JdbcPartRepository partRepository;
 
     public RepairShopService(ConnectionFactory connections) {
+        partRepository = new JdbcPartRepository(connections);
         parts = new JdbcPartRepository(connections);
         jobs = new JdbcJobRepository(connections);
         store = new JdbcShopStore(connections);
@@ -56,5 +58,24 @@ public final class RepairShopService {
             throw new IllegalArgumentException(message, e);
         }
         return e;
+    }
+    public void deletePart(String id) throws SQLException {
+    String key = Validation.id(id, "Part ID");
+
+    try {
+        if (!partRepository.deleteById(key)) {
+            throw new IllegalArgumentException(
+                "Unknown part ID: " + key);
+        }
+    } catch (SQLException e) {
+        if ("23503".equals(e.getSQLState())
+                || e.getErrorCode() == 1451) {
+            throw new IllegalArgumentException(
+                "Part " + key +
+                " is used by a job and cannot be deleted.", e);
+        }
+
+        throw e;
+       }
     }
 }
