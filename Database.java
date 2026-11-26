@@ -7,11 +7,23 @@ class Database implements AutoCloseable {
 
     public Database() throws SQLException {
         Map<String, String> env = System.getenv();
+        String user = env.getOrDefault("REPAIR_DB_USER", "repair_app");
         String password = env.get("REPAIR_DB_PASSWORD");
-        if (password == null) throw new ShopException("Set REPAIR_DB_PASSWORD first.");
+        if (password == null) {
+            java.io.Console console = System.console();
+            if (console == null) throw new ShopException("Run run-local.cmd in a terminal to enter your MySQL login.");
+            user = env.getOrDefault("REPAIR_DB_USER", "root");
+            String enteredUser = console.readLine("MySQL username [%s]: ", user);
+            if (enteredUser == null) throw new ShopException("Login cancelled.");
+            if (!enteredUser.trim().isEmpty()) user = enteredUser.trim();
+            char[] enteredPassword = console.readPassword("MySQL password: ");
+            if (enteredPassword == null) throw new ShopException("Login cancelled.");
+            password = new String(enteredPassword);
+            Arrays.fill(enteredPassword, '\0');
+        }
         connection = DriverManager.getConnection(
                 env.getOrDefault("REPAIR_DB_URL", "jdbc:mysql://localhost:3306/repair_shop?connectTimeout=5000&socketTimeout=15000"),
-                env.getOrDefault("REPAIR_DB_USER", "repair_app"), password);
+                user, password);
         try (Statement statement = connection.createStatement()) {
             String suffix = " ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin";
             statement.executeUpdate("CREATE TABLE IF NOT EXISTS spare_parts ("
@@ -48,20 +60,21 @@ class Database implements AutoCloseable {
 
     public synchronized void addParts(List<Part> parts) throws SQLException {
         connection.setAutoCommit(false);
-        try (PreparedStatement query = connection.prepareStatement("INSERT INTO spare_parts VALUES (?,?,?)")) {
-            for (Part part : parts) {
-                query.setString(1, part.getId());
-                query.setString(2, part.getName());
-                query.setInt(3, part.getQuantity());
-                query.executeUpdate();
+        try {
+            try (PreparedStatement query = connection.prepareStatement("INSERT INTO spare_parts VALUES (?,?,?)")) {
+                for (Part part : parts) {
+                    query.setString(1, part.getId());
+                    query.setString(2, part.getName());
+                    query.setInt(3, part.getQuantity());
+                    query.executeUpdate();
+                }
             }
             connection.commit();
         } catch (SQLException | RuntimeException e) {
-            connection.rollback();
+            rollbackAfterFailure(e);
             throw e;
-        } finally {
-            connection.setAutoCommit(true);
         }
+        restoreAutoCommit();
     }
 
     public synchronized void addJob(RepairJob job) throws SQLException {
@@ -86,8 +99,8 @@ class Database implements AutoCloseable {
     public synchronized int usePart(String job, String part, int quantity) throws SQLException {
         Entity.positive(quantity);
         connection.setAutoCommit(false);
+        int available;
         try {
-            int available;
             try (PreparedStatement query = connection.prepareStatement("SELECT quantity FROM spare_parts WHERE id=? FOR UPDATE")) {
                 query.setString(1, part);
                 try (ResultSet rows = query.executeQuery()) {
@@ -108,12 +121,43 @@ class Database implements AutoCloseable {
                 query.executeUpdate();
             }
             connection.commit();
-            return available - quantity;
         } catch (SQLException | RuntimeException e) {
-            connection.rollback();
+            rollbackAfterFailure(e);
             throw e;
-        } finally {
+        }
+        restoreAutoCommit();
+        return available - quantity;
+    }
+
+    private void rollbackAfterFailure(Exception failure) {
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            failure.addSuppressed(e);
+            closeAfterFailure(failure);
+            return;
+        }
+        try {
+            restoreAutoCommit();
+        } catch (SQLException e) {
+            failure.addSuppressed(e);
+        }
+    }
+
+    private void restoreAutoCommit() throws SQLException {
+        try {
             connection.setAutoCommit(true);
+        } catch (SQLException e) {
+            closeAfterFailure(e);
+            throw e;
+        }
+    }
+
+    private void closeAfterFailure(Exception failure) {
+        try {
+            connection.close();
+        } catch (SQLException e) {
+            failure.addSuppressed(e);
         }
     }
 

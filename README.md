@@ -1,6 +1,6 @@
 ﻿# Repair Shop — compact syllabus version
 
-545 Java lines across four files, including comments and blank lines.
+591 Java lines across four files, including comments and blank lines.
 Uses Java 17 and MySQL through JDBC. The only external library is the MySQL
 JDBC driver in lib/. No Maven, H2, CSV library or testing framework is required.
 
@@ -15,11 +15,17 @@ JDBC driver in lib/. No Maven, H2, CSV library or testing framework is required.
 
 ## First-time database setup
 
-Install JDK 17+ and MySQL Server 8+. Start MySQL, then run this SQL as a database
-administrator (replace the example password):
+Install JDK 17+ and MySQL Server 8+. Start MySQL, then create the database as an
+administrator:
 
 ```sql
 CREATE DATABASE IF NOT EXISTS repair_shop CHARACTER SET utf8mb4 COLLATE utf8mb4_bin;
+```
+
+You can use your existing Workbench account. To create a dedicated account
+instead, replace the example password and run:
+
+```sql
 CREATE USER IF NOT EXISTS 'repair_app'@'localhost' IDENTIFIED BY 'YOUR_PASSWORD';
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, REFERENCES ON repair_shop.* TO 'repair_app'@'localhost';
 ```
@@ -31,11 +37,12 @@ reset them. Tables must use InnoDB. The application creates missing tables.
 In PowerShell, from this project directory:
 
 ```powershell
-$env:REPAIR_DB_USER = 'repair_app'
-$credential = Get-Credential -UserName repair_app -Message 'MySQL password'
-$env:REPAIR_DB_PASSWORD = $credential.GetNetworkCredential().Password
 .\run-local.cmd
 ```
+
+Enter your MySQL username (press Enter for root) and password when prompted.
+The password is hidden while typing. If REPAIR_DB_PASSWORD is already configured,
+the application uses the environment settings automatically.
 
 The launcher compiles every time and starts the MySQL version. Its name is kept
 for convenience; the former H2/--local mode has been removed. MySQL must run.

@@ -10,7 +10,8 @@ class Csv {
         StringBuilder field = new StringBuilder();
         boolean quoted = false, closed = false, started = false;
         try (PushbackReader reader = new PushbackReader(new FileReader(path, StandardCharsets.UTF_8), 1)) {
-            int value;
+            int value = reader.read();
+            if (value != -1 && value != '\uFEFF') reader.unread(value);
             while ((value = reader.read()) != -1) {
                 char c = (char) value;
                 started = true;

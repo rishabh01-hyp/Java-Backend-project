@@ -16,8 +16,9 @@ public class Main {
         try (Database database = new Database()) {
             new Main(database).run();
         } catch (SQLException | IllegalArgumentException e) {
-            System.out.println("Cannot start: " + e.getMessage());
-            System.out.println("Check MySQL and REPAIR_DB_URL/USER/PASSWORD. See README.md.");
+            System.err.println("Database error: " + e.getMessage());
+            System.err.println("Check MySQL and REPAIR_DB_URL/USER/PASSWORD. See README.md.");
+            System.exit(1);
         }
     }
 
